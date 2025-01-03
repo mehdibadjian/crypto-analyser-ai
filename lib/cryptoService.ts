@@ -18,13 +18,13 @@ export async function getTopTokens(
     url.searchParams.set('page', validatedPage.toString());
     url.searchParams.set('sparkline', 'false');
     const response = await fetch(url.toString());
-    
+
     if (!response.ok) {
       throw new Error(`API request failed with status ${response.status}`);
     }
 
     const data = await response.json();
-    
+
     return data.map((token: any) => ({
       name: token.name,
       symbol: token.symbol,
@@ -33,7 +33,7 @@ export async function getTopTokens(
       price_change_percentage_24h: token.price_change_percentage_24h,
       market_cap: token.market_cap,
       total_volume: token.total_volume,
-      circulating_supply: token.circulating_supply
+      circulating_supply: token.circulating_supply,
     }));
   } catch (error) {
     console.error('Error fetching crypto data:', error);

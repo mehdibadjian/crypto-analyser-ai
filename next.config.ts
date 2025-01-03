@@ -1,9 +1,12 @@
-import type { NextConfig } from 'next';
+import type { NextConfig } from 'next'
 
-const nextConfig: NextConfig = {
+const config: NextConfig = {
   experimental: {
     ppr: true,
   },
-};
+  images: {
+    domains: ['assets.coingecko.com'],
+  },
+}
 
-export default nextConfig;
+export default config

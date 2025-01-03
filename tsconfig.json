@@ -16,7 +16,10 @@
     "baseUrl": ".",
     "plugins": [
       {
-        "name": "next"
+        "name": "next",
+        "experimental": {
+          "ppr": true
+        }
       }
     ],
     "paths": {

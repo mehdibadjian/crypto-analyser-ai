@@ -1,10 +1,10 @@
 export interface Indicators {
-  sma: number
-  ema: number
-  rsi: number
+  sma: number;
+  ema: number;
+  rsi: number;
   macd: {
-    MACD: number
-    signal: number
-    histogram: number
-  }
+    MACD: number;
+    signal: number;
+    histogram: number;
+  };
 }

@@ -27,11 +27,11 @@ function getRateLimitHeaders(
 ): Record<string, string> {
   const remaining = Math.max(0, limit - requests.length);
   const resetTime = requests.length > 0 ? requests[0] + RATE_LIMIT_WINDOW : now;
-  
+
   return {
     'X-RateLimit-Limit': limit.toString(),
     'X-RateLimit-Remaining': remaining.toString(),
-    'X-RateLimit-Reset': Math.ceil(resetTime / 1000).toString()
+    'X-RateLimit-Reset': Math.ceil(resetTime / 1000).toString(),
   };
 }
 
@@ -101,31 +101,31 @@ export async function GET(request: Request) {
   // Rate limit check
   const now = Date.now();
   const rateLimitKey = getRateLimitKey(request);
-  
+
   if (!rateLimit.has(rateLimitKey)) {
     rateLimit.set(rateLimitKey, []);
   }
-  
+
   let requests = rateLimit.get(rateLimitKey)!;
-  requests = requests.filter(timestamp => now - timestamp < RATE_LIMIT_WINDOW);
-  
+  requests = requests.filter((timestamp) => now - timestamp < RATE_LIMIT_WINDOW);
+
   if (requests.length >= RATE_LIMIT) {
     const retryAfter = calculateRetryAfter(requests, now);
     return NextResponse.json(
       {
         error: 'Rate limit exceeded',
-        message: `Please wait ${retryAfter} seconds before making another request`
+        message: `Please wait ${retryAfter} seconds before making another request`,
       },
       {
         status: 429,
-        headers: getRateLimitHeaders(requests, RATE_LIMIT, now)
+        headers: getRateLimitHeaders(requests, RATE_LIMIT, now),
       }
     );
   }
-  
+
   requests.push(now);
   rateLimit.set(rateLimitKey, requests);
-  
+
   try {
     // Using CoinGecko's free API with pagination
     const url = new URL('https://api.coingecko.com/api/v3/coins/markets');
@@ -134,25 +134,25 @@ export async function GET(request: Request) {
       order: 'market_cap_desc',
       per_page: '10',
       page: '1',
-      sparkline: 'false'
+      sparkline: 'false',
     });
-    
+
     // Get and validate pagination params from request URL
     const { searchParams: requestParams } = new URL(request.url);
-    
+
     // Validate page number
     let page = parseInt(requestParams.get('page') || '1');
     page = isNaN(page) || page < 1 ? 1 : Math.min(page, 10); // Max 10 pages
-    
+
     // Validate per_page value
     let perPage = parseInt(requestParams.get('per_page') || '10');
     perPage = isNaN(perPage) || perPage < 1 ? 10 : Math.min(perPage, 100); // Max 100 items
-    
+
     searchParams.set('page', page.toString());
     searchParams.set('per_page', perPage.toString());
 
     const response = await fetch(`${url.toString()}?${searchParams.toString()}`, {
-      next: { revalidate: 3600 }
+      next: { revalidate: 3600 },
     });
 
     if (!response.ok) {
@@ -160,7 +160,7 @@ export async function GET(request: Request) {
     }
 
     const data: CoinData[] = await response.json();
-    
+
     // Add pagination metadata to response
     const totalPages = Math.ceil(100 / Number(perPage)); // CoinGecko returns max 100 results
 
@@ -175,15 +175,15 @@ export async function GET(request: Request) {
           volume24h: coin.total_volume,
           marketCap: coin.market_cap,
           lastUpdated: new Date().toISOString(),
-          insights: insights
+          insights: insights,
         };
       }),
       pagination: {
         currentPage: Number(page),
         perPage: Number(perPage),
         totalPages: Math.ceil(100 / Number(perPage)), // CoinGecko returns max 100 results
-        totalItems: 100
-      }
+        totalItems: 100,
+      },
     };
 
     return NextResponse.json(result);

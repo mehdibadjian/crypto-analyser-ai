@@ -13,15 +13,7 @@ import {
   Legend,
 } from 'chart.js';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 interface IndicatorData {
   timestamp: number;
@@ -44,7 +36,7 @@ export default function TechnicalIndicators({ symbol }: TechnicalIndicatorsProps
       try {
         const response = await fetch(`/api/indicators/${symbol}`);
         const data = await response.json();
-        
+
         setSmaData(data.sma);
         setEmaData(data.ema);
         setRsiData(data.rsi);

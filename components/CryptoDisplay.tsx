@@ -60,11 +60,7 @@ export function CryptoDisplay({ crypto }: CryptoDisplayProps) {
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex items-center space-x-4">
-        <img 
-          src={crypto.image} 
-          alt={crypto.name}
-          className="w-10 h-10"
-        />
+        <img src={crypto.image} alt={crypto.name} className="w-10 h-10" />
         <div>
           <h2 className="text-xl font-semibold">{crypto.name}</h2>
           <p className="text-gray-500">{crypto.symbol.toUpperCase()}</p>
@@ -73,11 +69,11 @@ export function CryptoDisplay({ crypto }: CryptoDisplayProps) {
       <div className="mt-4 space-y-2">
         <div className="flex items-center justify-between">
           <p className="text-2xl font-bold">${crypto.current_price.toLocaleString()}</p>
-          <p className={`text-sm ${
-            crypto.price_change_percentage_24h >= 0 
-              ? 'text-green-500' 
-              : 'text-red-500'
-          }`}>
+          <p
+            className={`text-sm ${
+              crypto.price_change_percentage_24h >= 0 ? 'text-green-500' : 'text-red-500'
+            }`}
+          >
             {crypto.price_change_percentage_24h?.toFixed(2)}%
           </p>
         </div>
@@ -93,12 +89,14 @@ export function CryptoDisplay({ crypto }: CryptoDisplayProps) {
           </div>
           <div>
             <p>Circulating Supply</p>
-            <p className="font-medium">{crypto.circulating_supply.toLocaleString()} {crypto.symbol.toUpperCase()}</p>
+            <p className="font-medium">
+              {crypto.circulating_supply.toLocaleString()} {crypto.symbol.toUpperCase()}
+            </p>
           </div>
         </div>
 
         {!showIndicators ? (
-          <button 
+          <button
             onClick={handleShowIndicators}
             className="mt-4 w-full py-2 px-4 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
           >
@@ -110,68 +108,87 @@ export function CryptoDisplay({ crypto }: CryptoDisplayProps) {
             <div className="h-4 bg-gray-200 rounded animate-pulse" />
             <div className="h-4 bg-gray-200 rounded animate-pulse" />
           </div>
-        ) : indicators && (
-          <div className="mt-4 space-y-2">
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="p-2 bg-gray-50 rounded-lg">
-                <p className="text-gray-500 font-medium" title="Simple Moving Average - Average price over a period">
-                  SMA
-                </p>
-                <p className={`font-semibold ${
-                  indicators.sma && crypto.current_price > indicators.sma 
-                    ? 'text-green-600' 
-                    : 'text-red-600'
-                }`}>
-                  {indicators.sma?.toFixed(2) || 'N/A'}
-                </p>
-              </div>
-              <div className="p-2 bg-gray-50 rounded-lg">
-                <p className="text-gray-500 font-medium" title="Exponential Moving Average - Weighted average price">
-                  EMA
-                </p>
-                <p className={`font-semibold ${
-                  indicators.ema && crypto.current_price > indicators.ema 
-                    ? 'text-green-600' 
-                    : 'text-red-600'
-                }`}>
-                  {indicators.ema?.toFixed(2) || 'N/A'}
-                </p>
-              </div>
-              <div className="p-2 bg-gray-50 rounded-lg">
-                <p className="text-gray-500 font-medium" title="Relative Strength Index - Momentum indicator (30-70 range)">
-                  RSI
-                </p>
-                <p className={`font-semibold ${
-                  indicators.rsi 
-                    ? indicators.rsi > 70 
-                      ? 'text-red-600' 
-                      : indicators.rsi < 30 
-                        ? 'text-green-600' 
+        ) : (
+          indicators && (
+            <div className="mt-4 space-y-2">
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="p-2 bg-gray-50 rounded-lg">
+                  <p
+                    className="text-gray-500 font-medium"
+                    title="Simple Moving Average - Average price over a period"
+                  >
+                    SMA
+                  </p>
+                  <p
+                    className={`font-semibold ${
+                      indicators.sma && crypto.current_price > indicators.sma
+                        ? 'text-green-600'
+                        : 'text-red-600'
+                    }`}
+                  >
+                    {indicators.sma?.toFixed(2) || 'N/A'}
+                  </p>
+                </div>
+                <div className="p-2 bg-gray-50 rounded-lg">
+                  <p
+                    className="text-gray-500 font-medium"
+                    title="Exponential Moving Average - Weighted average price"
+                  >
+                    EMA
+                  </p>
+                  <p
+                    className={`font-semibold ${
+                      indicators.ema && crypto.current_price > indicators.ema
+                        ? 'text-green-600'
+                        : 'text-red-600'
+                    }`}
+                  >
+                    {indicators.ema?.toFixed(2) || 'N/A'}
+                  </p>
+                </div>
+                <div className="p-2 bg-gray-50 rounded-lg">
+                  <p
+                    className="text-gray-500 font-medium"
+                    title="Relative Strength Index - Momentum indicator (30-70 range)"
+                  >
+                    RSI
+                  </p>
+                  <p
+                    className={`font-semibold ${
+                      indicators.rsi
+                        ? indicators.rsi > 70
+                          ? 'text-red-600'
+                          : indicators.rsi < 30
+                            ? 'text-green-600'
+                            : 'text-gray-600'
                         : 'text-gray-600'
-                    : 'text-gray-600'
-                }`}>
-                  {indicators.rsi?.toFixed(0) || 'N/A'}
-                </p>
-              </div>
-              <div className="p-2 bg-gray-50 rounded-lg">
-                <p className="text-gray-500 font-medium" title="Moving Average Convergence Divergence - Trend indicator">
-                  MACD
-                </p>
-                <p className={`font-semibold ${
-                  indicators.macd 
-                    ? indicators.macd.MACD > indicators.macd.signal 
-                      ? 'text-green-600' 
-                      : 'text-red-600'
-                    : 'text-gray-600'
-                }`}>
-                  {indicators.macd 
-                    ? `${indicators.macd?.MACD?.toFixed(2)}`
-                    : 'N/A'
-                  }
-                </p>
+                    }`}
+                  >
+                    {indicators.rsi?.toFixed(0) || 'N/A'}
+                  </p>
+                </div>
+                <div className="p-2 bg-gray-50 rounded-lg">
+                  <p
+                    className="text-gray-500 font-medium"
+                    title="Moving Average Convergence Divergence - Trend indicator"
+                  >
+                    MACD
+                  </p>
+                  <p
+                    className={`font-semibold ${
+                      indicators.macd
+                        ? indicators.macd.MACD > indicators.macd.signal
+                          ? 'text-green-600'
+                          : 'text-red-600'
+                        : 'text-gray-600'
+                    }`}
+                  >
+                    {indicators.macd ? `${indicators.macd?.MACD?.toFixed(2)}` : 'N/A'}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          )
         )}
       </div>
     </div>
