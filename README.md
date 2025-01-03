@@ -4,6 +4,8 @@ A Next.js application that analyzes cryptocurrency data to identify potential in
 
 ## Features
 
+- Removed deprecated Avatar component
+- Updated Button component imports
 - Hourly cryptocurrency data updates
 - Advanced filtering by blockchain network
 - Sorting by price, volume, and price changes

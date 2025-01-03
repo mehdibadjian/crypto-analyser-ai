@@ -1,211 +1,178 @@
-'use client';
+import { CryptoCurrency } from '../lib/types';
+import { useState } from 'react';
 
-import { useState, useEffect } from 'react';
-
-interface CryptoData {
-  name: string;
-  symbol: string;
-  price: number;
-  priceChange24h?: number;
-  volume24h: number;
-  marketCap: number;
-  lastUpdated: string;
-  chain: string;
-  insights: {
-    buyRating: number; // 1-5
-    sellRating: number; // 1-5
-    reasons: string[];
-  };
+interface CryptoDisplayProps {
+  crypto?: CryptoCurrency;
 }
 
-export default function CryptoDisplay() {
-  const [cryptoData, setCryptoData] = useState<CryptoData[]>([]);
-  const [sortBy, setSortBy] = useState<'price' | 'volume' | 'change' | 'gainer' | 'loser'>(
-    'volume',
-  );
-  const [selectedChain, setSelectedChain] = useState<string>('all');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('/api/crypto');
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        console.log('API Response:', JSON.stringify(data, null, 2));
-        if (!data || typeof data !== 'object') {
-          console.error('Invalid API response format:', data);
-          throw new Error('Invalid API response format');
-        }
-
-        // Validate response structure
-        if (!Array.isArray(data)) {
-          console.error('Invalid API response format:', data);
-          throw new Error('Expected array of cryptocurrency data');
-        }
-
-        // Validate each coin's data
-        const validData = data.filter(
-          (coin) =>
-            typeof coin?.volume24h === 'number' &&
-            typeof coin?.marketCap === 'number' &&
-            typeof coin?.price === 'number' &&
-            typeof coin?.priceChange24h === 'number',
-        );
-
-        if (validData.length === 0) {
-          throw new Error('No valid cryptocurrency data found');
-        }
-
-        setCryptoData(validData);
-      } catch (err: any) {
-        console.error('Fetch error:', {
-          message: err?.message,
-          stack: err?.stack,
-          response: err?.response,
-        });
-        setError(err?.message || 'An unknown error occurred');
-      } finally {
-        setLoading(false);
-      }
+export function CryptoDisplay({ crypto }: CryptoDisplayProps) {
+  const [indicators, setIndicators] = useState<{
+    sma?: number;
+    ema?: number;
+    rsi?: number;
+    macd?: {
+      MACD: number;
+      signal: number;
+      histogram: number;
     };
+  } | null>(null);
+  const [loadingIndicators, setLoadingIndicators] = useState(false);
+  const [showIndicators, setShowIndicators] = useState(false);
 
-    fetchData();
-    const interval = setInterval(fetchData, 3600000); // Refresh every hour
-    return () => clearInterval(interval);
-  }, []);
+  const handleShowIndicators = async () => {
+    if (!crypto || indicators !== null) {
+      setShowIndicators(true);
+      return;
+    }
 
-  if (loading) return <div>Loading cryptocurrency data...</div>;
-  if (error) return <div>Error: {error}</div>;
-  if (!cryptoData || cryptoData.length === 0) return <div>No data available</div>;
+    setLoadingIndicators(true);
+    try {
+      const response = await fetch(`/api/indicators/${crypto.symbol}`);
+      if (!response.ok) throw new Error('Failed to fetch indicators');
+      const data = await response.json();
+      setIndicators(data);
+      setShowIndicators(true);
+    } catch (error) {
+      console.error('Error fetching indicators:', error);
+    } finally {
+      setLoadingIndicators(false);
+    }
+  };
 
-  // Sort the data based on current sortBy state
-  // Filter and sort data
-  const filteredData = cryptoData.filter(
-    (coin) => selectedChain === 'all' || coin.chain === selectedChain,
-  );
-
-  const sortedData = [...filteredData].sort((a, b) => {
-    if (sortBy === 'price') return b.price - a.price;
-    if (sortBy === 'volume') return b.volume24h - a.volume24h;
-    if (sortBy === 'gainer') return (b.priceChange24h ?? 0) - (a.priceChange24h ?? 0);
-    if (sortBy === 'loser') return (a.priceChange24h ?? 0) - (b.priceChange24h ?? 0);
-    return (b.priceChange24h ?? 0) - (a.priceChange24h ?? 0);
-  });
-
-  return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-2xl font-bold mb-6">Top Cryptocurrencies</h1>
-
-      <div className="mb-4 flex gap-4 flex-wrap">
-        <div>
-          <label className="mr-2">Sort by:</label>
-          <select
-            value={sortBy}
-            onChange={(e) =>
-              setSortBy(e.target.value as 'price' | 'volume' | 'change' | 'gainer' | 'loser')
-            }
-            className="p-2 border rounded"
-          >
-            <option value="volume">Volume</option>
-            <option value="price">Price</option>
-            <option value="change">24h Change</option>
-            <option value="gainer">Top Gainer</option>
-            <option value="loser">Top Loser</option>
-          </select>
+  if (!crypto) {
+    return (
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="flex items-center space-x-4">
+          <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse" />
+          <div>
+            <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
+            <div className="h-3 w-20 bg-gray-200 rounded mt-1 animate-pulse" />
+          </div>
         </div>
-        <div>
-          <label className="mr-2">Filter by Chain:</label>
-          <select
-            value={selectedChain}
-            onChange={(e) => setSelectedChain(e.target.value)}
-            className="p-2 border rounded"
-          >
-            <option value="all">All Chains</option>
-            <option value="ethereum">Ethereum</option>
-            <option value="binance-smart-chain">Binance</option>
-            <option value="polygon-pos">Polygon</option>
-            <option value="solana">Solana</option>
-            <option value="avalanche">Avalanche</option>
-          </select>
+        <div className="mt-4">
+          <div className="h-6 w-24 bg-gray-200 rounded animate-pulse" />
+          <div className="h-4 w-16 bg-gray-200 rounded mt-1 animate-pulse" />
         </div>
       </div>
+    );
+  }
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {sortedData.map((coin) => (
-          <div key={coin.symbol} className="p-4 border rounded-lg">
-            <h2 className="text-xl font-semibold mb-2">
-              {coin.name} ({coin.symbol.toUpperCase()})
-            </h2>
-            <div className="space-y-1">
-              <div className="flex justify-between">
-                <span className="font-medium">Chain:</span>
-                <span className="capitalize">{coin.chain.replace(/-/g, ' ')}</span>
+  return (
+    <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="flex items-center space-x-4">
+        <img 
+          src={crypto.image} 
+          alt={crypto.name}
+          className="w-10 h-10"
+        />
+        <div>
+          <h2 className="text-xl font-semibold">{crypto.name}</h2>
+          <p className="text-gray-500">{crypto.symbol.toUpperCase()}</p>
+        </div>
+      </div>
+      <div className="mt-4 space-y-2">
+        <div className="flex items-center justify-between">
+          <p className="text-2xl font-bold">${crypto.current_price.toLocaleString()}</p>
+          <p className={`text-sm ${
+            crypto.price_change_percentage_24h >= 0 
+              ? 'text-green-500' 
+              : 'text-red-500'
+          }`}>
+            {crypto.price_change_percentage_24h?.toFixed(2)}%
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
+          <div>
+            <p>Market Cap</p>
+            <p className="font-medium">${crypto.market_cap.toLocaleString()}</p>
+          </div>
+          <div>
+            <p>Volume (24h)</p>
+            <p className="font-medium">${crypto.total_volume.toLocaleString()}</p>
+          </div>
+          <div>
+            <p>Circulating Supply</p>
+            <p className="font-medium">{crypto.circulating_supply.toLocaleString()} {crypto.symbol.toUpperCase()}</p>
+          </div>
+        </div>
+
+        {!showIndicators ? (
+          <button 
+            onClick={handleShowIndicators}
+            className="mt-4 w-full py-2 px-4 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+          >
+            Show Technical Indicators
+          </button>
+        ) : loadingIndicators ? (
+          <div className="mt-4 space-y-2">
+            <div className="h-4 bg-gray-200 rounded animate-pulse" />
+            <div className="h-4 bg-gray-200 rounded animate-pulse" />
+            <div className="h-4 bg-gray-200 rounded animate-pulse" />
+          </div>
+        ) : indicators && (
+          <div className="mt-4 space-y-2">
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="p-2 bg-gray-50 rounded-lg">
+                <p className="text-gray-500 font-medium" title="Simple Moving Average - Average price over a period">
+                  SMA
+                </p>
+                <p className={`font-semibold ${
+                  indicators.sma && crypto.current_price > indicators.sma 
+                    ? 'text-green-600' 
+                    : 'text-red-600'
+                }`}>
+                  {indicators.sma?.toFixed(2) || 'N/A'}
+                </p>
               </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Price:</span>
-                <span>${coin.price.toFixed(2)}</span>
+              <div className="p-2 bg-gray-50 rounded-lg">
+                <p className="text-gray-500 font-medium" title="Exponential Moving Average - Weighted average price">
+                  EMA
+                </p>
+                <p className={`font-semibold ${
+                  indicators.ema && crypto.current_price > indicators.ema 
+                    ? 'text-green-600' 
+                    : 'text-red-600'
+                }`}>
+                  {indicators.ema?.toFixed(2) || 'N/A'}
+                </p>
               </div>
-              <div className="flex justify-between">
-                <span className="font-medium">24h Change:</span>
-                <span
-                  className={`${coin.priceChange24h === undefined ? 'text-gray-600' : coin.priceChange24h >= 0 ? 'text-green-600' : 'text-red-600'}`}
-                >
-                  {coin.priceChange24h?.toFixed(2) ?? 'N/A'}%
-                </span>
+              <div className="p-2 bg-gray-50 rounded-lg">
+                <p className="text-gray-500 font-medium" title="Relative Strength Index - Momentum indicator (30-70 range)">
+                  RSI
+                </p>
+                <p className={`font-semibold ${
+                  indicators.rsi 
+                    ? indicators.rsi > 70 
+                      ? 'text-red-600' 
+                      : indicators.rsi < 30 
+                        ? 'text-green-600' 
+                        : 'text-gray-600'
+                    : 'text-gray-600'
+                }`}>
+                  {indicators.rsi?.toFixed(0) || 'N/A'}
+                </p>
               </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Volume:</span>
-                <span>${coin.volume24h?.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Market Cap:</span>
-                <span>${coin.marketCap.toLocaleString()}</span>
-              </div>
-              <div className="mt-2">
-                <div className="flex justify-between">
-                  <span className="font-medium">Buy Rating:</span>
-                  <span className="flex items-center">
-                    {Array.from({ length: coin.insights.buyRating }).map((_, i) => (
-                      <span key={i} className="text-green-500">
-                        ★
-                      </span>
-                    ))}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-medium">Sell Rating:</span>
-                  <span className="flex items-center">
-                    {Array.from({ length: coin.insights.sellRating }).map((_, i) => (
-                      <span key={i} className="text-red-500">
-                        ★
-                      </span>
-                    ))}
-                  </span>
-                </div>
-              </div>
-              <div className="mt-2 text-sm">
-                <div className="font-medium">Insights:</div>
-                <ul className="list-disc list-inside">
-                  {coin.insights.reasons.map((reason, i) => (
-                    <li key={i}>{reason}</li>
-                  ))}
-                </ul>
-              </div>
-              <div className="text-sm text-gray-500 mt-2">
-                Last updated: {new Date(coin.lastUpdated).toLocaleString()}
+              <div className="p-2 bg-gray-50 rounded-lg">
+                <p className="text-gray-500 font-medium" title="Moving Average Convergence Divergence - Trend indicator">
+                  MACD
+                </p>
+                <p className={`font-semibold ${
+                  indicators.macd 
+                    ? indicators.macd.MACD > indicators.macd.signal 
+                      ? 'text-green-600' 
+                      : 'text-red-600'
+                    : 'text-gray-600'
+                }`}>
+                  {indicators.macd 
+                    ? `${indicators.macd?.MACD?.toFixed(2)}`
+                    : 'N/A'
+                  }
+                </p>
               </div>
             </div>
           </div>
-        ))}
-      </div>
-
-      <div className="mt-6 text-xs text-gray-400">
-        Disclaimer: This is not financial advice. Cryptocurrency investments are subject to market
-        risks.
+        )}
       </div>
     </div>
   );

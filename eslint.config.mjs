@@ -13,11 +13,21 @@ export default [
       react: react,
     },
     rules: {
+      ...next.configs.recommended.rules,
       '@next/next/no-html-link-for-pages': 'error',
+      '@next/next/no-img-element': 'warn',
+      '@next/next/no-typos': 'error',
       'unused-imports/no-unused-imports': 'error',
       'react-hooks/exhaustive-deps': 'error',
       'react-hooks/rules-of-hooks': 'error',
       'react/jsx-key': 'error',
+      'react/react-in-jsx-scope': 'off',
+    },
+  },
+  {
+    files: ['**/*.ts', '**/*.tsx'],
+    rules: {
+      '@typescript-eslint/no-unused-vars': 'warn',
     },
   },
   prettier,
