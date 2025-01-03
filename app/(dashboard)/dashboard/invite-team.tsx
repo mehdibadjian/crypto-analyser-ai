@@ -2,13 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Loader2, PlusCircle } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
@@ -24,10 +18,10 @@ type ActionState = {
 export function InviteTeamMember() {
   const { user } = useUser();
   const isOwner = user?.role === 'owner';
-  const [inviteState, inviteAction, isInvitePending] = useActionState<
-    ActionState,
-    FormData
-  >(inviteTeamMember, { error: '', success: '' });
+  const [inviteState, inviteAction, isInvitePending] = useActionState<ActionState, FormData>(
+    inviteTeamMember,
+    { error: '', success: '' },
+  );
 
   return (
     <Card>
@@ -65,12 +59,8 @@ export function InviteTeamMember() {
               </div>
             </RadioGroup>
           </div>
-          {inviteState?.error && (
-            <p className="text-red-500">{inviteState.error}</p>
-          )}
-          {inviteState?.success && (
-            <p className="text-green-500">{inviteState.success}</p>
-          )}
+          {inviteState?.error && <p className="text-red-500">{inviteState.error}</p>}
+          {inviteState?.success && <p className="text-green-500">{inviteState.success}</p>}
           <Button
             type="submit"
             className="bg-orange-500 hover:bg-orange-600 text-white"

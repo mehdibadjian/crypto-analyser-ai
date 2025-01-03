@@ -7,10 +7,7 @@ import { SubmitButton } from './submit-button';
 export const revalidate = 3600;
 
 export default async function PricingPage() {
-  const [prices, products] = await Promise.all([
-    getStripePrices(),
-    getStripeProducts(),
-  ]);
+  const [prices, products] = await Promise.all([getStripePrices(), getStripeProducts()]);
 
   const basePlan = products.find((product) => product.name === 'Base');
   const plusPlan = products.find((product) => product.name === 'Plus');
@@ -26,11 +23,7 @@ export default async function PricingPage() {
           price={basePrice?.unitAmount || 800}
           interval={basePrice?.interval || 'month'}
           trialDays={basePrice?.trialPeriodDays || 7}
-          features={[
-            'Unlimited Usage',
-            'Unlimited Workspace Members',
-            'Email Support',
-          ]}
+          features={['Unlimited Usage', 'Unlimited Workspace Members', 'Email Support']}
           priceId={basePrice?.id}
         />
         <PricingCard
@@ -68,14 +61,10 @@ function PricingCard({
   return (
     <div className="pt-6">
       <h2 className="text-2xl font-medium text-gray-900 mb-2">{name}</h2>
-      <p className="text-sm text-gray-600 mb-4">
-        with {trialDays} day free trial
-      </p>
+      <p className="text-sm text-gray-600 mb-4">with {trialDays} day free trial</p>
       <p className="text-4xl font-medium text-gray-900 mb-6">
         ${price / 100}{' '}
-        <span className="text-xl font-normal text-gray-600">
-          per user / {interval}
-        </span>
+        <span className="text-xl font-normal text-gray-600">per user / {interval}</span>
       </p>
       <ul className="space-y-4 mb-8">
         {features.map((feature, index) => (

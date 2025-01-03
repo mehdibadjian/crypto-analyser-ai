@@ -3,6 +3,7 @@
 A Next.js application that analyzes cryptocurrency data to identify potential investment opportunities based on trading metrics.
 
 ## Features
+
 - Hourly cryptocurrency data updates
 - Advanced filtering by blockchain network
 - Sorting by price, volume, and price changes

@@ -2,8 +2,8 @@
 const nextConfig = {
   webpack: (config, { isServer }) => {
     // Add custom webpack configuration here if needed
-    return config
-  }
-}
+    return config;
+  },
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

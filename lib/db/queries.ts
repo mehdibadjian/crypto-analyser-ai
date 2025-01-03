@@ -11,11 +11,7 @@ export async function getUser() {
   }
 
   const sessionData = await verifyToken(sessionCookie.value);
-  if (
-    !sessionData ||
-    !sessionData.user ||
-    typeof sessionData.user.id !== 'number'
-  ) {
+  if (!sessionData || !sessionData.user || typeof sessionData.user.id !== 'number') {
     return null;
   }
 
@@ -53,7 +49,7 @@ export async function updateTeamSubscription(
     stripeProductId: string | null;
     planName: string | null;
     subscriptionStatus: string;
-  }
+  },
 ) {
   await db
     .update(teams)

@@ -10,7 +10,8 @@ export default function Home() {
         <CryptoDisplay />
       </div>
       <div className="mt-8 text-sm text-gray-600">
-        Disclaimer: This is not financial advice. Cryptocurrency investments are subject to market risk.
+        Disclaimer: This is not financial advice. Cryptocurrency investments are subject to market
+        risk.
       </div>
     </main>
   );

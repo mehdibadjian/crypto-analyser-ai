@@ -14,19 +14,17 @@ type ActionState = {
 };
 
 export default function SecurityPage() {
-  const [passwordState, passwordAction, isPasswordPending] = useActionState<
-    ActionState,
-    FormData
-  >(updatePassword, { error: '', success: '' });
+  const [passwordState, passwordAction, isPasswordPending] = useActionState<ActionState, FormData>(
+    updatePassword,
+    { error: '', success: '' },
+  );
 
-  const [deleteState, deleteAction, isDeletePending] = useActionState<
-    ActionState,
-    FormData
-  >(deleteAccount, { error: '', success: '' });
+  const [deleteState, deleteAction, isDeletePending] = useActionState<ActionState, FormData>(
+    deleteAccount,
+    { error: '', success: '' },
+  );
 
-  const handlePasswordSubmit = async (
-    event: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handlePasswordSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     // If you call the Server Action directly, it will automatically
     // reset the form. We don't want that here, because we want to keep the
@@ -40,9 +38,7 @@ export default function SecurityPage() {
     });
   };
 
-  const handleDeleteSubmit = async (
-    event: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleDeleteSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     startTransition(() => {
       deleteAction(new FormData(event.currentTarget));
@@ -51,9 +47,7 @@ export default function SecurityPage() {
 
   return (
     <section className="flex-1 p-4 lg:p-8">
-      <h1 className="text-lg lg:text-2xl font-medium bold text-gray-900 mb-6">
-        Security Settings
-      </h1>
+      <h1 className="text-lg lg:text-2xl font-medium bold text-gray-900 mb-6">Security Settings</h1>
       <Card className="mb-8">
         <CardHeader>
           <CardTitle>Password</CardTitle>
@@ -95,9 +89,7 @@ export default function SecurityPage() {
                 maxLength={100}
               />
             </div>
-            {passwordState.error && (
-              <p className="text-red-500 text-sm">{passwordState.error}</p>
-            )}
+            {passwordState.error && <p className="text-red-500 text-sm">{passwordState.error}</p>}
             {passwordState.success && (
               <p className="text-green-500 text-sm">{passwordState.success}</p>
             )}
@@ -142,9 +134,7 @@ export default function SecurityPage() {
                 maxLength={100}
               />
             </div>
-            {deleteState.error && (
-              <p className="text-red-500 text-sm">{deleteState.error}</p>
-            )}
+            {deleteState.error && <p className="text-red-500 text-sm">{deleteState.error}</p>}
             <Button
               type="submit"
               variant="destructive"

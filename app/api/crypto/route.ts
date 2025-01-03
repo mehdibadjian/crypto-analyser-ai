@@ -14,21 +14,29 @@ interface CoinData {
 const CHAINS = ['ethereum', 'binance-smart-chain', 'polygon-pos', 'solana', 'avalanche'];
 
 function generateInsights(coin: CoinData) {
-  const buyRating = Math.min(5, Math.max(1, 
-    Math.round(
-      (coin.price_change_percentage_24h > 0 ? 3 : 1) +
-      (coin.total_volume > 100000000 ? 2 : 0) +
-      (coin.market_cap > 1000000000 ? 1 : 0)
-    )
-  ));
+  const buyRating = Math.min(
+    5,
+    Math.max(
+      1,
+      Math.round(
+        (coin.price_change_percentage_24h > 0 ? 3 : 1) +
+          (coin.total_volume > 100000000 ? 2 : 0) +
+          (coin.market_cap > 1000000000 ? 1 : 0),
+      ),
+    ),
+  );
 
-  const sellRating = Math.min(5, Math.max(1, 
-    Math.round(
-      (coin.price_change_percentage_24h < 0 ? 3 : 1) +
-      (coin.total_volume > 100000000 ? 1 : 0) +
-      (coin.market_cap > 1000000000 ? 1 : 0)
-    )
-  ));
+  const sellRating = Math.min(
+    5,
+    Math.max(
+      1,
+      Math.round(
+        (coin.price_change_percentage_24h < 0 ? 3 : 1) +
+          (coin.total_volume > 100000000 ? 1 : 0) +
+          (coin.market_cap > 1000000000 ? 1 : 0),
+      ),
+    ),
+  );
 
   const reasons = [];
   if (coin.price_change_percentage_24h > 5) {
@@ -46,21 +54,21 @@ function generateInsights(coin: CoinData) {
   return {
     buyRating,
     sellRating,
-    reasons: reasons.length > 0 ? reasons : ['Neutral market activity']
+    reasons: reasons.length > 0 ? reasons : ['Neutral market activity'],
   };
 }
 
 export async function GET() {
   try {
     const allCoins = [];
-    
+
     // Fetch data for each chain
     for (const chain of CHAINS) {
       const response = await fetch(
         `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=20&page=1&sparkline=false`,
         {
-          next: { revalidate: 3600 } // Revalidate every hour
-        }
+          next: { revalidate: 3600 }, // Revalidate every hour
+        },
       );
 
       if (!response.ok) {
@@ -69,12 +77,12 @@ export async function GET() {
       }
 
       const data: CoinData[] = await response.json();
-      
+
       // Add chain information and insights
-      const chainCoins = data.map(coin => ({
+      const chainCoins = data.map((coin) => ({
         ...coin,
         chain,
-        insights: generateInsights(coin)
+        insights: generateInsights(coin),
       }));
 
       allCoins.push(...chainCoins);
@@ -83,7 +91,7 @@ export async function GET() {
     // Sort all coins by market cap
     const sortedCoins = allCoins.sort((a, b) => b.market_cap - a.market_cap);
 
-    const result = sortedCoins.map(coin => ({
+    const result = sortedCoins.map((coin) => ({
       name: coin.name,
       symbol: coin.symbol,
       price: coin.current_price,
@@ -92,14 +100,11 @@ export async function GET() {
       marketCap: coin.market_cap,
       lastUpdated: new Date().toISOString(),
       chain: coin.chain,
-      insights: coin.insights
+      insights: coin.insights,
     }));
 
     return NextResponse.json(result);
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to fetch cryptocurrency data' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch cryptocurrency data' }, { status: 500 });
   }
 }

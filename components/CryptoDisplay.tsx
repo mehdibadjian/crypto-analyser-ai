@@ -20,7 +20,9 @@ interface CryptoData {
 
 export default function CryptoDisplay() {
   const [cryptoData, setCryptoData] = useState<CryptoData[]>([]);
-  const [sortBy, setSortBy] = useState<'price' | 'volume' | 'change' | 'gainer' | 'loser'>('volume');
+  const [sortBy, setSortBy] = useState<'price' | 'volume' | 'change' | 'gainer' | 'loser'>(
+    'volume',
+  );
   const [selectedChain, setSelectedChain] = useState<string>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,31 +40,32 @@ export default function CryptoDisplay() {
           console.error('Invalid API response format:', data);
           throw new Error('Invalid API response format');
         }
-        
+
         // Validate response structure
         if (!Array.isArray(data)) {
           console.error('Invalid API response format:', data);
           throw new Error('Expected array of cryptocurrency data');
         }
-        
+
         // Validate each coin's data
-        const validData = data.filter(coin => 
-          typeof coin?.volume24h === 'number' &&
-          typeof coin?.marketCap === 'number' &&
-          typeof coin?.price === 'number' &&
-          typeof coin?.priceChange24h === 'number'
+        const validData = data.filter(
+          (coin) =>
+            typeof coin?.volume24h === 'number' &&
+            typeof coin?.marketCap === 'number' &&
+            typeof coin?.price === 'number' &&
+            typeof coin?.priceChange24h === 'number',
         );
-        
+
         if (validData.length === 0) {
           throw new Error('No valid cryptocurrency data found');
         }
-        
+
         setCryptoData(validData);
       } catch (err: any) {
         console.error('Fetch error:', {
           message: err?.message,
           stack: err?.stack,
-          response: err?.response
+          response: err?.response,
         });
         setError(err?.message || 'An unknown error occurred');
       } finally {
@@ -81,8 +84,8 @@ export default function CryptoDisplay() {
 
   // Sort the data based on current sortBy state
   // Filter and sort data
-  const filteredData = cryptoData.filter(coin => 
-    selectedChain === 'all' || coin.chain === selectedChain
+  const filteredData = cryptoData.filter(
+    (coin) => selectedChain === 'all' || coin.chain === selectedChain,
   );
 
   const sortedData = [...filteredData].sort((a, b) => {
@@ -96,13 +99,15 @@ export default function CryptoDisplay() {
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
       <h1 className="text-2xl font-bold mb-6">Top Cryptocurrencies</h1>
-      
+
       <div className="mb-4 flex gap-4 flex-wrap">
         <div>
           <label className="mr-2">Sort by:</label>
           <select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as 'price' | 'volume' | 'change' | 'gainer' | 'loser')}
+            onChange={(e) =>
+              setSortBy(e.target.value as 'price' | 'volume' | 'change' | 'gainer' | 'loser')
+            }
             className="p-2 border rounded"
           >
             <option value="volume">Volume</option>
@@ -146,7 +151,9 @@ export default function CryptoDisplay() {
               </div>
               <div className="flex justify-between">
                 <span className="font-medium">24h Change:</span>
-                <span className={`${coin.priceChange24h === undefined ? 'text-gray-600' : (coin.priceChange24h >= 0 ? 'text-green-600' : 'text-red-600')}`}>
+                <span
+                  className={`${coin.priceChange24h === undefined ? 'text-gray-600' : coin.priceChange24h >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                >
                   {coin.priceChange24h?.toFixed(2) ?? 'N/A'}%
                 </span>
               </div>
@@ -163,7 +170,9 @@ export default function CryptoDisplay() {
                   <span className="font-medium">Buy Rating:</span>
                   <span className="flex items-center">
                     {Array.from({ length: coin.insights.buyRating }).map((_, i) => (
-                      <span key={i} className="text-green-500">★</span>
+                      <span key={i} className="text-green-500">
+                        ★
+                      </span>
                     ))}
                   </span>
                 </div>
@@ -171,7 +180,9 @@ export default function CryptoDisplay() {
                   <span className="font-medium">Sell Rating:</span>
                   <span className="flex items-center">
                     {Array.from({ length: coin.insights.sellRating }).map((_, i) => (
-                      <span key={i} className="text-red-500">★</span>
+                      <span key={i} className="text-red-500">
+                        ★
+                      </span>
                     ))}
                   </span>
                 </div>
@@ -193,7 +204,8 @@ export default function CryptoDisplay() {
       </div>
 
       <div className="mt-6 text-xs text-gray-400">
-        Disclaimer: This is not financial advice. Cryptocurrency investments are subject to market risks.
+        Disclaimer: This is not financial advice. Cryptocurrency investments are subject to market
+        risks.
       </div>
     </div>
   );

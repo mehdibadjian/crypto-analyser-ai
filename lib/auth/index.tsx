@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  createContext,
-  useContext,
-  ReactNode,
-  useState,
-  useEffect,
-} from 'react';
+import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { use } from 'react';
 import { User } from '@/lib/db/schema';
 
@@ -39,9 +33,5 @@ export function UserProvider({
     setUser(initialUser);
   }, [initialUser]);
 
-  return (
-    <UserContext.Provider value={{ user, setUser }}>
-      {children}
-    </UserContext.Provider>
-  );
+  return <UserContext.Provider value={{ user, setUser }}>{children}</UserContext.Provider>;
 }

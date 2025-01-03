@@ -8,7 +8,11 @@
     "db:seed": "npx tsx lib/db/seed.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "npx tsx lib/db/migrate.ts",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.2",
@@ -50,6 +54,14 @@
   "devDependencies": {
     "@types/node": "^22.10.4",
     "@types/react": "^19.0.2",
+    "eslint": "^8.56.0",
+    "@next/eslint-plugin-next": "14.1.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-react": "^7.37.3",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-unused-imports": "^4.1.4",
+    "prettier": "^3.4.2",
     "typescript": "^5.7.2"
   }
 }

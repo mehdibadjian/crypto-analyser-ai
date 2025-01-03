@@ -1,11 +1,7 @@
 import Stripe from 'stripe';
 import { redirect } from 'next/navigation';
 import { Team } from '@/lib/db/schema';
-import {
-  getTeamByStripeCustomerId,
-  getUser,
-  updateTeamSubscription,
-} from '@/lib/db/queries';
+import { getTeamByStripeCustomerId, getUser, updateTeamSubscription } from '@/lib/db/queries';
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-06-20',
@@ -91,13 +87,7 @@ export async function createCustomerPortalSession(team: Team) {
           mode: 'at_period_end',
           cancellation_reason: {
             enabled: true,
-            options: [
-              'too_expensive',
-              'missing_features',
-              'switched_service',
-              'unused',
-              'other',
-            ],
+            options: ['too_expensive', 'missing_features', 'switched_service', 'unused', 'other'],
           },
         },
       },
@@ -111,9 +101,7 @@ export async function createCustomerPortalSession(team: Team) {
   });
 }
 
-export async function handleSubscriptionChange(
-  subscription: Stripe.Subscription,
-) {
+export async function handleSubscriptionChange(subscription: Stripe.Subscription) {
   const customerId = subscription.customer as string;
   const subscriptionId = subscription.id;
   const status = subscription.status;
@@ -152,8 +140,7 @@ export async function getStripePrices() {
 
   return prices.data.map((price) => ({
     id: price.id,
-    productId:
-      typeof price.product === 'string' ? price.product : price.product.id,
+    productId: typeof price.product === 'string' ? price.product : price.product.id,
     unitAmount: price.unit_amount,
     currency: price.currency,
     interval: price.recurring?.interval,
@@ -172,8 +159,6 @@ export async function getStripeProducts() {
     name: product.name,
     description: product.description,
     defaultPriceId:
-      typeof product.default_price === 'string'
-        ? product.default_price
-        : product.default_price?.id,
+      typeof product.default_price === 'string' ? product.default_price : product.default_price?.id,
   }));
 }
